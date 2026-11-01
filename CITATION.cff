@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Waves Lawn Tools"
+abstract: >-
+  Open-source lawn-watering math for Florida lawns: sprinkler runtime to inches
+  per week, and a weekly watering plan that counts measured rain, the forecast
+  and the local watering limit. The same code powers the free Lawn Watering
+  Calculator from Waves Pest Control.
+type: software
+authors:
+  - name: "Waves Pest Control, LLC"
+    website: "https://www.wavespestcontrol.com/"
+repository-code: "https://github.com/wavespestcontrolfl/waves-lawn-tools"
+url: "https://www.wavespestcontrol.com/tools/lawn-watering-calculator/"
+license: MIT
+version: "1.0.0"
+date-released: "2026-11-01"
+keywords:
+  - irrigation
+  - lawn care
+  - turfgrass
+  - Florida
+  - evapotranspiration
+  - watering restrictions

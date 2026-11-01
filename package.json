@@ -1,0 +1,24 @@
+{
+  "name": "waves-lawn-tools",
+  "version": "1.0.0",
+  "description": "Lawn-watering math for Florida lawns: sprinkler runtime to inches per week, and a weekly watering plan under local watering limits.",
+  "main": "src/irrigation.js",
+  "files": ["src", "README.md", "LICENSE", "CITATION.cff"],
+  "scripts": {
+    "test": "node --test test/"
+  },
+  "keywords": ["irrigation", "lawn", "turfgrass", "florida", "sprinkler", "evapotranspiration", "watering-restrictions"],
+  "author": "Waves Pest Control, LLC (https://www.wavespestcontrol.com/)",
+  "license": "MIT",
+  "homepage": "https://www.wavespestcontrol.com/tools/lawn-watering-calculator/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wavespestcontrolfl/waves-lawn-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wavespestcontrolfl/waves-lawn-tools/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
