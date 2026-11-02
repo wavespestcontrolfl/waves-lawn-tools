@@ -1,6 +1,6 @@
 {
   "name": "waves-lawn-tools",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Lawn-watering math for Florida lawns (sprinkler runtime to inches per week, a weekly watering plan under local watering limits) and a client for the free Waves public API: watering plan, pest pressure forecast, yard pressure calendar.",
   "main": "index.js",
   "files": [

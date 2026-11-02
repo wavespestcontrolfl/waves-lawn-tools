@@ -1,0 +1,57 @@
+name: publish-pypi
+
+# Push a tag such as py-v1.2.0 (it must match the version in python/pyproject.toml) to
+# publish to PyPI. Uses PyPI trusted publishing: no token is stored in this repository.
+# One-time setup on pypi.org: add a trusted publisher for the project waves-lawn-tools
+# (owner wavespestcontrolfl, repository waves-lawn-tools, workflow publish-pypi.yml,
+# environment pypi).
+
+on:
+  push:
+    tags:
+      - "py-v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check the tag matches the package version
+        if: startsWith(github.ref, 'refs/tags/py-v')
+        run: |
+          version=$(python -c 'import tomllib; print(tomllib.load(open("python/pyproject.toml", "rb"))["project"]["version"])')
+          test "${GITHUB_REF_NAME#py-v}" = "$version"
+      - name: Test
+        run: python -m unittest discover -s python/tests -v
+        env:
+          PYTHONPATH: python/src
+      - name: Build
+        run: |
+          python -m pip install build
+          python -m build python
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist
+          path: python/dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-dist
+          path: python/dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: python/dist/
