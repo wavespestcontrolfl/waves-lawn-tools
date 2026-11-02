@@ -1,0 +1,651 @@
+{
+  "info": {
+    "name": "Waves Pest Control Public API",
+    "_postman_id": "6f6c2b52-6a2e-4f0e-9d7c-5f1b3c0e1a01",
+    "description": "Free, read-only JSON endpoints for Florida lawns and homes, from Waves Pest Control & Lawn Care in Southwest Florida: a weekly lawn watering plan, a monthly pest pressure forecast by city or ZIP, and a monthly yard pressure calendar for lawns, shrubs and weeds. No key and no sign-up. CORS is open (Access-Control-Allow-Origin: *), so a web page on any site can call them. Please cache responses: they carry Cache-Control headers, and the data changes a few times a day at most. The forecast and the calendar are seasonal, weather-based models, not measurements.\n\nAI agents can use the same data through the public MCP server at https://portal.wavespestcontrol.com/api/public/mcp (MCP Registry name com.wavespestcontrol/pest-control).\n\nDocs: https://github.com/wavespestcontrolfl/waves-lawn-tools/blob/main/docs/public-api.md",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "This week's lawn watering plan for a Florida city or ZIP",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/public/watering-plan?location=bradenton-fl&zip=34205&head=spray",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "public",
+            "watering-plan"
+          ],
+          "query": [
+            {
+              "key": "location",
+              "value": "bradenton-fl",
+              "description": "A city slug from /api/public/pest-forecast/locations. Send `location` or `zip`.",
+              "disabled": false
+            },
+            {
+              "key": "zip",
+              "value": "34205",
+              "description": "A 5-digit Florida ZIP code. Send `location` or `zip`.",
+              "disabled": false
+            },
+            {
+              "key": "grass",
+              "value": "",
+              "description": "Turf type.",
+              "disabled": true
+            },
+            {
+              "key": "head",
+              "value": "spray",
+              "description": "Sprinkler head type.",
+              "disabled": false
+            },
+            {
+              "key": "minutes",
+              "value": "",
+              "description": "Current minutes per zone, used with `head`.",
+              "disabled": true
+            },
+            {
+              "key": "sensor",
+              "value": "",
+              "description": "`1` if the system has a rain sensor, else `0`.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Last 7 days of measured rain, this week's forecast, the turf's weekly need and a run or hold decision under the local watering limit. `plan.action` is `run`, `hold`, `need_only` (no watering order is tracked for that county, so the answer is the lawn's need only) or `unavailable`. Every answer links the county's water management district rules in `rulesUrl`; local rules always come first. Limit: 120 requests in 15 minutes from one address."
+      },
+      "response": [
+        {
+          "name": "200 The plan",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/watering-plan?location=bradenton-fl&zip=34205&head=spray",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "watering-plan"
+              ],
+              "query": [
+                {
+                  "key": "location",
+                  "value": "bradenton-fl",
+                  "description": "A city slug from /api/public/pest-forecast/locations. Send `location` or `zip`.",
+                  "disabled": false
+                },
+                {
+                  "key": "zip",
+                  "value": "34205",
+                  "description": "A 5-digit Florida ZIP code. Send `location` or `zip`.",
+                  "disabled": false
+                },
+                {
+                  "key": "grass",
+                  "value": "",
+                  "description": "Turf type.",
+                  "disabled": true
+                },
+                {
+                  "key": "head",
+                  "value": "spray",
+                  "description": "Sprinkler head type.",
+                  "disabled": false
+                },
+                {
+                  "key": "minutes",
+                  "value": "",
+                  "description": "Current minutes per zone, used with `head`.",
+                  "disabled": true
+                },
+                {
+                  "key": "sensor",
+                  "value": "",
+                  "description": "`1` if the system has a rain sensor, else `0`.",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "body": "{\n  \"location\": {\n    \"slug\": \"bradenton-fl\",\n    \"label\": \"Bradenton, FL\",\n    \"county\": \"Manatee\"\n  },\n  \"asOf\": \"2026-11-02\",\n  \"week\": {\n    \"start\": \"2026-11-02\",\n    \"end\": \"2026-11-08\"\n  },\n  \"rain\": {\n    \"last7Inches\": 0.25,\n    \"source\": \"mrms+open_meteo\"\n  },\n  \"forecast\": {\n    \"rainInches\": 2.83,\n    \"et0Inches\": 0.91\n  },\n  \"need\": {\n    \"targetInches\": 0.75,\n    \"basis\": \"evapotranspiration\",\n    \"netInches\": 0.75\n  },\n  \"plan\": {\n    \"action\": \"run\",\n    \"events\": 1,\n    \"depthInches\": 0.75,\n    \"minutesPerEvent\": 45,\n    \"conditionalOnForecast\": true,\n    \"legalMaxEvents\": 1\n  },\n  \"restriction\": {\n    \"label\": \"SWFWMD Modified Phase III water shortage order\",\n    \"maxDaysPerWeek\": 1,\n    \"source\": \"https://www.swfwmd.state.fl.us/the-newsroom/2026/district-extends-modified-phase-iii-water-shortage\"\n  },\n  \"rulesUrl\": \"https://www.swfwmd.state.fl.us/business/epermitting/district-water-restrictions\",\n  \"text\": {\n    \"headline\": \"This week: check the rain before you water\",\n    \"action\": \"About 2.83\\\" of rain is in this week's forecast. Leave the turf irrigation off for now; on your permitted watering day (on your assigned day, during your area's allowed hours), run one cycle of about 45 minutes per turf zone only if less than ½\\\" has fallen so far this week.\",\n    \"notes\": [\n      \"SWFWMD Modified Phase III water shortage order limits lawn watering to one day a week, on your assigned day, during your area's allowed hours. Your city or county can set stricter limits, so check with your utility.\",\n      \"About ¼\\\" of rain fell in the last 7 days (weather-model estimate).\",\n      \"The weekly need comes from this week's forecast evapotranspiration for this grass type.\",\n      \"No grass type was given, so this assumes St. Augustine, the most common Florida lawn.\",\n      \"Minutes assume typical spray-head rates, so treat them as a starting point.\"\n    ]\n  },\n  \"landing\": \"https://www.wavespestcontrol.com/tools/lawn-watering-calculator/\",\n  \"brand\": \"Waves Pest Control\",\n  \"disclaimer\": \"This is a weather-based estimate, not a measurement of your yard, and your local watering rules always come first.\"\n}"
+        },
+        {
+          "name": "400 A bad or unsupported parameter: `location_required`, `invalid_zip`, `unsupported_zip` (outside the supported Florida areas), and so on",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/watering-plan?location=bradenton-fl&zip=34205&head=spray",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "watering-plan"
+              ],
+              "query": [
+                {
+                  "key": "location",
+                  "value": "bradenton-fl",
+                  "description": "A city slug from /api/public/pest-forecast/locations. Send `location` or `zip`.",
+                  "disabled": false
+                },
+                {
+                  "key": "zip",
+                  "value": "34205",
+                  "description": "A 5-digit Florida ZIP code. Send `location` or `zip`.",
+                  "disabled": false
+                },
+                {
+                  "key": "grass",
+                  "value": "",
+                  "description": "Turf type.",
+                  "disabled": true
+                },
+                {
+                  "key": "head",
+                  "value": "spray",
+                  "description": "Sprinkler head type.",
+                  "disabled": false
+                },
+                {
+                  "key": "minutes",
+                  "value": "",
+                  "description": "Current minutes per zone, used with `head`.",
+                  "disabled": true
+                },
+                {
+                  "key": "sensor",
+                  "value": "",
+                  "description": "`1` if the system has a rain sensor, else `0`.",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "body": "{\n  \"error\": \"unsupported_zip\",\n  \"message\": \"That ZIP code is not in a supported Florida area. Try a city slug instead.\"\n}"
+        },
+        {
+          "name": "429 More than 120 requests in 15 minutes from one address",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/watering-plan?location=bradenton-fl&zip=34205&head=spray",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "watering-plan"
+              ],
+              "query": [
+                {
+                  "key": "location",
+                  "value": "bradenton-fl",
+                  "description": "A city slug from /api/public/pest-forecast/locations. Send `location` or `zip`.",
+                  "disabled": false
+                },
+                {
+                  "key": "zip",
+                  "value": "34205",
+                  "description": "A 5-digit Florida ZIP code. Send `location` or `zip`.",
+                  "disabled": false
+                },
+                {
+                  "key": "grass",
+                  "value": "",
+                  "description": "Turf type.",
+                  "disabled": true
+                },
+                {
+                  "key": "head",
+                  "value": "spray",
+                  "description": "Sprinkler head type.",
+                  "disabled": false
+                },
+                {
+                  "key": "minutes",
+                  "value": "",
+                  "description": "Current minutes per zone, used with `head`.",
+                  "disabled": true
+                },
+                {
+                  "key": "sensor",
+                  "value": "",
+                  "description": "`1` if the system has a rain sensor, else `0`.",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "status": "Too Many Requests",
+          "code": 429,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "body": "{\n  \"error\": \"rate_limited\",\n  \"message\": \"Too many requests from this connection. Please try again in a few minutes.\"\n}"
+        },
+        {
+          "name": "503 Weather data is down",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/watering-plan?location=bradenton-fl&zip=34205&head=spray",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "watering-plan"
+              ],
+              "query": [
+                {
+                  "key": "location",
+                  "value": "bradenton-fl",
+                  "description": "A city slug from /api/public/pest-forecast/locations. Send `location` or `zip`.",
+                  "disabled": false
+                },
+                {
+                  "key": "zip",
+                  "value": "34205",
+                  "description": "A 5-digit Florida ZIP code. Send `location` or `zip`.",
+                  "disabled": false
+                },
+                {
+                  "key": "grass",
+                  "value": "",
+                  "description": "Turf type.",
+                  "disabled": true
+                },
+                {
+                  "key": "head",
+                  "value": "spray",
+                  "description": "Sprinkler head type.",
+                  "disabled": false
+                },
+                {
+                  "key": "minutes",
+                  "value": "",
+                  "description": "Current minutes per zone, used with `head`.",
+                  "disabled": true
+                },
+                {
+                  "key": "sensor",
+                  "value": "",
+                  "description": "`1` if the system has a rain sensor, else `0`.",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "status": "Service Unavailable",
+          "code": 503,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "body": "{\n  \"error\": \"watering_plan_unavailable\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "The supported Florida cities",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/public/pest-forecast/locations",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "public",
+            "pest-forecast",
+            "locations"
+          ],
+          "query": []
+        },
+        "description": "The supported Florida cities"
+      },
+      "response": [
+        {
+          "name": "200 City slugs for the forecast and the watering plan",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/pest-forecast/locations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "pest-forecast",
+                "locations"
+              ],
+              "query": []
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "body": "{\n  \"locations\": [\n    {\n      \"slug\": \"bradenton-fl\",\n      \"label\": \"Bradenton, FL\",\n      \"region\": \"sw\",\n      \"county\": \"Manatee\"\n    },\n    {\n      \"slug\": \"lakewood-ranch-fl\",\n      \"label\": \"Lakewood Ranch, FL\",\n      \"region\": \"sw\",\n      \"county\": \"Manatee\"\n    },\n    {\n      \"slug\": \"parrish-fl\",\n      \"label\": \"Parrish, FL\",\n      \"region\": \"sw\",\n      \"county\": \"Manatee\"\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "This month's pest pressure forecast for a Florida city or ZIP",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/public/pest-forecast?location=bradenton-fl",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "public",
+            "pest-forecast"
+          ],
+          "query": [
+            {
+              "key": "location",
+              "value": "bradenton-fl",
+              "description": "A city slug from /api/public/pest-forecast/locations.",
+              "disabled": false
+            },
+            {
+              "key": "zip",
+              "value": "",
+              "description": "A 5-digit Florida ZIP code (nearest supported city).",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "A seasonal, weather-based model of how active common Florida pests are this month, one entry per pest with a score, a level and a trend. An unknown city or ZIP falls back to Southwest Florida."
+      },
+      "response": [
+        {
+          "name": "200 The forecast",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/pest-forecast?location=bradenton-fl",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "pest-forecast"
+              ],
+              "query": [
+                {
+                  "key": "location",
+                  "value": "bradenton-fl",
+                  "description": "A city slug from /api/public/pest-forecast/locations.",
+                  "disabled": false
+                },
+                {
+                  "key": "zip",
+                  "value": "",
+                  "description": "A 5-digit Florida ZIP code (nearest supported city).",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "body": "{\n  \"model_version\": \"seasonal-weather-v1\",\n  \"evidence\": {\n    \"kind\": \"seasonal_weather_model\",\n    \"observation_validation\": \"not_validated\"\n  },\n  \"location\": {\n    \"slug\": \"bradenton-fl\",\n    \"label\": \"Bradenton, FL\",\n    \"region\": \"sw\",\n    \"county\": \"Manatee\"\n  },\n  \"as_of_date\": \"2026-11-02\",\n  \"generated_at\": \"2026-11-02T05:55:38.895Z\",\n  \"month\": 11,\n  \"month_name\": \"November\",\n  \"weather\": {\n    \"available\": true,\n    \"temp_high_f\": 83,\n    \"precip_chance\": 22,\n    \"recent_rain_in\": null,\n    \"source\": \"nws\",\n    \"summary\": \"83°F · 22% chance of rain\"\n  },\n  \"summary\": \"November weather: the model rates overall pest pressure on the lower side for current conditions.\",\n  \"pests\": [\n    {\n      \"key\": \"german_roach\",\n      \"label\": \"German Cockroaches\",\n      \"emoji\": \"🪳\",\n      \"category\": \"indoor\",\n      \"score\": 5,\n      \"score10\": 5,\n      \"baseline\": 5,\n      \"baseline_comparison\": \"near\",\n      \"level\": \"moderate\",\n      \"trend\": \"flat\",\n      \"trend_basis\": \"seasonal_baseline\",\n      \"week_over_week\": null,\n      \"note\": \"German roaches stay active indoors year-round in Florida.\"\n    },\n    {\n      \"key\": \"rodents\",\n      \"label\": \"Rats & Mice\",\n      \"emoji\": \"🐀\",\n      \"category\": \"rodent\",\n      \"score\": 5,\n      \"score10\": 5,\n      \"baseline\": 5,\n      \"baseline_comparison\": \"near\",\n      \"level\": \"moderate\",\n      \"trend\": \"flat\",\n      \"trend_basis\": \"seasonal_baseline\",\n      \"week_over_week\": null,\n      \"note\": \"The model estimates a lower rodent outlook; indoor activity is still possible.\"\n    }\n  ],\n  \"attribution\": {\n    \"brand\": \"Waves Pest Control\",\n    \"text\": \"Florida Pest Pressure Forecast by Waves Pest Control\",\n    \"url\": \"https://www.wavespestcontrol.com/tools/pest-pressure-forecast/?utm_source=embed&utm_medium=widget&utm_campaign=pest-forecast&utm_content=bradenton-fl\"\n  },\n  \"disclaimer\": \"A seasonal and weather-based model, not a measurement or guarantee of pest activity. Local observation accuracy has not yet been validated.\"\n}"
+        },
+        {
+          "name": "500 The forecast could not be built",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/pest-forecast?location=bradenton-fl",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "pest-forecast"
+              ],
+              "query": [
+                {
+                  "key": "location",
+                  "value": "bradenton-fl",
+                  "description": "A city slug from /api/public/pest-forecast/locations.",
+                  "disabled": false
+                },
+                {
+                  "key": "zip",
+                  "value": "",
+                  "description": "A 5-digit Florida ZIP code (nearest supported city).",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "status": "Internal Server Error",
+          "code": 500,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "body": "{\n  \"error\": \"forecast_unavailable\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Monthly yard pressure calendar for Southwest Florida lawns, shrubs and weeds",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/public/yard-calendar?month=11&grass=sta",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "public",
+            "yard-calendar"
+          ],
+          "query": [
+            {
+              "key": "month",
+              "value": "11",
+              "description": "Month 1 to 12. Default: the current month (US Eastern).",
+              "disabled": false
+            },
+            {
+              "key": "grass",
+              "value": "sta",
+              "description": "Filter lawn items by turf: `sta` St. Augustine, `bah` Bahia, `zoy` Zoysia, `ber` Bermuda, or `all`.",
+              "disabled": false
+            }
+          ]
+        },
+        "description": "What is active in Southwest Florida yards this month (lawn pests, lawn diseases, shrub and tree pests, weeds), with a level for every month of the year."
+      },
+      "response": [
+        {
+          "name": "200 The calendar",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/yard-calendar?month=11&grass=sta",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "yard-calendar"
+              ],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "11",
+                  "description": "Month 1 to 12. Default: the current month (US Eastern).",
+                  "disabled": false
+                },
+                {
+                  "key": "grass",
+                  "value": "sta",
+                  "description": "Filter lawn items by turf: `sta` St. Augustine, `bah` Bahia, `zoy` Zoysia, `ber` Bermuda, or `all`.",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "body": "{\n  \"month\": 11,\n  \"grass\": \"sta\",\n  \"area\": \"Southwest Florida\",\n  \"reviewedAt\": \"2026-10-02\",\n  \"items\": [\n    {\n      \"id\": \"sod-webworm\",\n      \"category\": \"lawn\",\n      \"name\": \"Tropical sod webworm\",\n      \"hosts\": \"St. Augustine, Bermuda, Bahia\",\n      \"grassKeys\": [\n        \"sta\",\n        \"ber\",\n        \"bah\"\n      ],\n      \"level\": 3,\n      \"levelLabel\": \"Peak season\",\n      \"levels\": [\n        1,\n        1,\n        1,\n        1,\n        1,\n        1,\n        1,\n        1,\n        3,\n        3,\n        3,\n        1\n      ],\n      \"trend\": \"easing_next_month\",\n      \"sign\": \"Notched, chewed blades and ragged patches. The larvae do the damage; moths flying up at dusk mean it is time to look.\",\n      \"lookAlike\": \"Looks like: chinch bug or drought patches, but the blades are chewed.\",\n      \"infoOnly\": false,\n      \"serviceLine\": \"lawn\",\n      \"link\": \"/pest-identifier/sod-webworm/\"\n    },\n    {\n      \"id\": \"white-grub\",\n      \"category\": \"lawn\",\n      \"name\": \"White grubs\",\n      \"hosts\": \"All grasses\",\n      \"grassKeys\": [\n        \"sta\",\n        \"bah\",\n        \"zoy\",\n        \"ber\"\n      ],\n      \"level\": 1,\n      \"levelLabel\": \"Low year-round\",\n      \"levels\": [\n        1,\n        1,\n        1,\n        1,\n        1,\n        1,\n        1,\n        3,\n        3,\n        3,\n        1,\n        1\n      ],\n      \"trend\": null,\n      \"sign\": \"Wilting patches that peel back like carpet, with C-shaped grubs in the soil.\",\n      \"lookAlike\": \"Looks like: drought stress, but the turf lifts with no roots.\",\n      \"infoOnly\": false,\n      \"serviceLine\": \"lawn\",\n      \"link\": \"/pest-identifier/white-grub/\"\n    }\n  ],\n  \"planAhead\": [\n    \"Winter weeds are still in the pre-emergent window.\"\n  ]\n}"
+        },
+        {
+          "name": "400 A bad `month` or `grass` value",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/yard-calendar?month=11&grass=sta",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "yard-calendar"
+              ],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "11",
+                  "description": "Month 1 to 12. Default: the current month (US Eastern).",
+                  "disabled": false
+                },
+                {
+                  "key": "grass",
+                  "value": "sta",
+                  "description": "Filter lawn items by turf: `sta` St. Augustine, `bah` Bahia, `zoy` Zoysia, `ber` Bermuda, or `all`.",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "body": "{\n  \"error\": \"invalid_month\",\n  \"message\": \"month must be an integer from 1 to 12\"\n}"
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://portal.wavespestcontrol.com",
+      "type": "string"
+    }
+  ]
+}

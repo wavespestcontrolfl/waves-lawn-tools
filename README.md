@@ -53,6 +53,31 @@ buildWeekPlan({
 `action` is `run`, `hold` (skip turf watering this week) or `unavailable` (no legal policy
 or no target). A soaked week carries up to half an inch of surplus into the next one.
 
+## Call the public API
+
+The package also has a small client for the free Waves public API (no key, open CORS).
+It uses the global `fetch` of Node 18 or newer, or a browser.
+
+```js
+const { getWateringPlan, getPestForecast, getYardCalendar } = require('waves-lawn-tools');
+
+const plan = await getWateringPlan({ zip: '34205', head: 'spray', minutes: 20 });
+plan.plan.action;        // 'run', 'hold', 'need_only' or 'unavailable'
+plan.text.headline;      // a one-line answer for people
+
+const forecast = await getPestForecast({ location: 'bradenton-fl' });
+forecast.pests.map((p) => `${p.label}: ${p.level}`);
+
+const yard = await getYardCalendar({ month: 11, grass: 'sta' });
+```
+
+`getPestForecastLocations()` lists the city slugs. An error answer throws a `WavesApiError`
+with the HTTP `status` and the API's `code` (for example `unsupported_zip`).
+
+The endpoints are described in [docs/public-api.md](docs/public-api.md) and, as OpenAPI 3.0,
+in [docs/openapi.json](docs/openapi.json). To try them in Postman, import
+[docs/waves-public-api.postman_collection.json](docs/waves-public-api.postman_collection.json).
+
 ## Sources
 
 - UF/IFAS AE451, *Basic Repairs and Maintenance for Home Landscape Irrigation Systems*, and

@@ -13,8 +13,8 @@ authors:
 repository-code: "https://github.com/wavespestcontrolfl/waves-lawn-tools"
 url: "https://www.wavespestcontrol.com/tools/lawn-watering-calculator/"
 license: MIT
-version: "1.0.0"
-date-released: "2026-11-01"
+version: "1.1.0"
+date-released: "2026-11-02"
 keywords:
   - irrigation
   - lawn care
