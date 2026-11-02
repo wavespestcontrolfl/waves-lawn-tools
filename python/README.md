@@ -2,7 +2,7 @@
 
 Free, open-source lawn-watering math for Florida lawns, and a client for the free Waves
 public API, from [Waves Pest Control & Lawn Care](https://www.wavespestcontrol.com/) in
-Southwest Florida. No dependencies. Python 3.9 or newer.
+Southwest Florida. No dependencies. Python 3.10 or newer.
 
 - **Try it:** the free [Lawn Watering Calculator](https://www.wavespestcontrol.com/tools/lawn-watering-calculator/) runs on this math.
 - **Use the data:** a free public API with no key. See the [API docs](https://github.com/wavespestcontrolfl/waves-lawn-tools/blob/main/docs/public-api.md).

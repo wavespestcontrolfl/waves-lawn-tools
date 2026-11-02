@@ -87,7 +87,7 @@ in [docs/openapi.json](docs/openapi.json). To try them in Postman, import
 
 The same watering math and API client are on PyPI as
 [`waves-lawn-tools`](https://pypi.org/project/waves-lawn-tools/), with no dependencies and
-Python 3.9 or newer. The code is in [python/](python/).
+Python 3.10 or newer. The code is in [python/](python/).
 
 ```sh
 pip install waves-lawn-tools

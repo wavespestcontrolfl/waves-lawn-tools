@@ -7,7 +7,7 @@ name = "waves-lawn-tools"
 version = "1.2.0"
 description = "Florida lawn-watering math (sprinkler runtime to inches per week, a weekly plan under local watering limits) and a client for the free Waves public API: watering plan, pest pressure forecast, yard pressure calendar, Pest Pressure Index."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "Waves Pest Control, LLC" }]
@@ -32,7 +32,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
