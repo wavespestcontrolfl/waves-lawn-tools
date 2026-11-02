@@ -1,0 +1,971 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Waves Pest Control Public API",
+    "version": "1.0.0",
+    "description": "Free, read-only JSON endpoints for Florida lawns and homes, from Waves Pest Control & Lawn Care in Southwest Florida: a weekly lawn watering plan, a monthly pest pressure forecast by city or ZIP, and a monthly yard pressure calendar for lawns, shrubs and weeds. No key and no sign-up. CORS is open (Access-Control-Allow-Origin: *), so a web page on any site can call them. Please cache responses: they carry Cache-Control headers, and the data changes a few times a day at most. The forecast and the calendar are seasonal, weather-based models, not measurements.\n\nAI agents can use the same data through the public MCP server at https://portal.wavespestcontrol.com/api/public/mcp (MCP Registry name com.wavespestcontrol/pest-control).",
+    "contact": {
+      "name": "Waves Pest Control",
+      "url": "https://www.wavespestcontrol.com/",
+      "email": "contact@wavespestcontrol.com"
+    },
+    "termsOfService": "https://www.wavespestcontrol.com/terms-of-service/"
+  },
+  "externalDocs": {
+    "description": "Docs and code (waves-lawn-tools)",
+    "url": "https://github.com/wavespestcontrolfl/waves-lawn-tools/blob/main/docs/public-api.md"
+  },
+  "servers": [
+    {
+      "url": "https://portal.wavespestcontrol.com"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Lawn watering"
+    },
+    {
+      "name": "Pest pressure forecast"
+    },
+    {
+      "name": "Yard pressure calendar"
+    }
+  ],
+  "paths": {
+    "/api/public/watering-plan": {
+      "get": {
+        "tags": [
+          "Lawn watering"
+        ],
+        "operationId": "getWateringPlan",
+        "summary": "This week's lawn watering plan for a Florida city or ZIP",
+        "description": "Last 7 days of measured rain, this week's forecast, the turf's weekly need and a run or hold decision under the local watering limit. `plan.action` is `run`, `hold`, `need_only` (no watering order is tracked for that county, so the answer is the lawn's need only) or `unavailable`. Every answer links the county's water management district rules in `rulesUrl`; local rules always come first. Limit: 120 requests in 15 minutes from one address.",
+        "parameters": [
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "description": "A city slug from /api/public/pest-forecast/locations. Send `location` or `zip`.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "bradenton-fl"
+          },
+          {
+            "name": "zip",
+            "in": "query",
+            "required": false,
+            "description": "A 5-digit Florida ZIP code. Send `location` or `zip`.",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]{5}$"
+            },
+            "example": "34205"
+          },
+          {
+            "name": "grass",
+            "in": "query",
+            "required": false,
+            "description": "Turf type.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "st_augustine",
+                "zoysia",
+                "bahia",
+                "bermuda",
+                "unknown"
+              ]
+            }
+          },
+          {
+            "name": "head",
+            "in": "query",
+            "required": false,
+            "description": "Sprinkler head type.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "spray",
+                "rotor"
+              ]
+            },
+            "example": "spray"
+          },
+          {
+            "name": "minutes",
+            "in": "query",
+            "required": false,
+            "description": "Current minutes per zone, used with `head`.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 240
+            }
+          },
+          {
+            "name": "sensor",
+            "in": "query",
+            "required": false,
+            "description": "`1` if the system has a rain sensor, else `0`.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "0",
+                "1"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The plan.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WateringPlan"
+                },
+                "example": {
+                  "location": {
+                    "slug": "bradenton-fl",
+                    "label": "Bradenton, FL",
+                    "county": "Manatee"
+                  },
+                  "asOf": "2026-11-02",
+                  "week": {
+                    "start": "2026-11-02",
+                    "end": "2026-11-08"
+                  },
+                  "rain": {
+                    "last7Inches": 0.25,
+                    "source": "mrms+open_meteo"
+                  },
+                  "forecast": {
+                    "rainInches": 2.83,
+                    "et0Inches": 0.91
+                  },
+                  "need": {
+                    "targetInches": 0.75,
+                    "basis": "evapotranspiration",
+                    "netInches": 0.75
+                  },
+                  "plan": {
+                    "action": "run",
+                    "events": 1,
+                    "depthInches": 0.75,
+                    "minutesPerEvent": 45,
+                    "conditionalOnForecast": true,
+                    "legalMaxEvents": 1
+                  },
+                  "restriction": {
+                    "label": "SWFWMD Modified Phase III water shortage order",
+                    "maxDaysPerWeek": 1,
+                    "source": "https://www.swfwmd.state.fl.us/the-newsroom/2026/district-extends-modified-phase-iii-water-shortage"
+                  },
+                  "rulesUrl": "https://www.swfwmd.state.fl.us/business/epermitting/district-water-restrictions",
+                  "text": {
+                    "headline": "This week: check the rain before you water",
+                    "action": "About 2.83\" of rain is in this week's forecast. Leave the turf irrigation off for now; on your permitted watering day (on your assigned day, during your area's allowed hours), run one cycle of about 45 minutes per turf zone only if less than ½\" has fallen so far this week.",
+                    "notes": [
+                      "SWFWMD Modified Phase III water shortage order limits lawn watering to one day a week, on your assigned day, during your area's allowed hours. Your city or county can set stricter limits, so check with your utility.",
+                      "About ¼\" of rain fell in the last 7 days (weather-model estimate).",
+                      "The weekly need comes from this week's forecast evapotranspiration for this grass type.",
+                      "No grass type was given, so this assumes St. Augustine, the most common Florida lawn.",
+                      "Minutes assume typical spray-head rates, so treat them as a starting point."
+                    ]
+                  },
+                  "landing": "https://www.wavespestcontrol.com/tools/lawn-watering-calculator/",
+                  "brand": "Waves Pest Control",
+                  "disclaimer": "This is a weather-based estimate, not a measurement of your yard, and your local watering rules always come first."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A bad or unsupported parameter: `location_required`, `invalid_zip`, `unsupported_zip` (outside the supported Florida areas), and so on.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "unsupported_zip",
+                  "message": "That ZIP code is not in a supported Florida area. Try a city slug instead."
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "More than 120 requests in 15 minutes from one address.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "rate_limited",
+                  "message": "Too many requests from this connection. Please try again in a few minutes."
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Weather data is down. Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "watering_plan_unavailable"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/pest-forecast/locations": {
+      "get": {
+        "tags": [
+          "Pest pressure forecast"
+        ],
+        "operationId": "getPestForecastLocations",
+        "summary": "The supported Florida cities",
+        "responses": {
+          "200": {
+            "description": "City slugs for the forecast and the watering plan.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Locations"
+                },
+                "example": {
+                  "locations": [
+                    {
+                      "slug": "bradenton-fl",
+                      "label": "Bradenton, FL",
+                      "region": "sw",
+                      "county": "Manatee"
+                    },
+                    {
+                      "slug": "lakewood-ranch-fl",
+                      "label": "Lakewood Ranch, FL",
+                      "region": "sw",
+                      "county": "Manatee"
+                    },
+                    {
+                      "slug": "parrish-fl",
+                      "label": "Parrish, FL",
+                      "region": "sw",
+                      "county": "Manatee"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/pest-forecast": {
+      "get": {
+        "tags": [
+          "Pest pressure forecast"
+        ],
+        "operationId": "getPestForecast",
+        "summary": "This month's pest pressure forecast for a Florida city or ZIP",
+        "description": "A seasonal, weather-based model of how active common Florida pests are this month, one entry per pest with a score, a level and a trend. An unknown city or ZIP falls back to Southwest Florida.",
+        "parameters": [
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "description": "A city slug from /api/public/pest-forecast/locations.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "bradenton-fl"
+          },
+          {
+            "name": "zip",
+            "in": "query",
+            "required": false,
+            "description": "A 5-digit Florida ZIP code (nearest supported city).",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]{5}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The forecast.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PestForecast"
+                },
+                "example": {
+                  "model_version": "seasonal-weather-v1",
+                  "evidence": {
+                    "kind": "seasonal_weather_model",
+                    "observation_validation": "not_validated"
+                  },
+                  "location": {
+                    "slug": "bradenton-fl",
+                    "label": "Bradenton, FL",
+                    "region": "sw",
+                    "county": "Manatee"
+                  },
+                  "as_of_date": "2026-11-02",
+                  "generated_at": "2026-11-02T05:55:38.895Z",
+                  "month": 11,
+                  "month_name": "November",
+                  "weather": {
+                    "available": true,
+                    "temp_high_f": 83,
+                    "precip_chance": 22,
+                    "recent_rain_in": null,
+                    "source": "nws",
+                    "summary": "83°F · 22% chance of rain"
+                  },
+                  "summary": "November weather: the model rates overall pest pressure on the lower side for current conditions.",
+                  "pests": [
+                    {
+                      "key": "german_roach",
+                      "label": "German Cockroaches",
+                      "emoji": "🪳",
+                      "category": "indoor",
+                      "score": 5,
+                      "score10": 5,
+                      "baseline": 5,
+                      "baseline_comparison": "near",
+                      "level": "moderate",
+                      "trend": "flat",
+                      "trend_basis": "seasonal_baseline",
+                      "week_over_week": null,
+                      "note": "German roaches stay active indoors year-round in Florida."
+                    },
+                    {
+                      "key": "rodents",
+                      "label": "Rats & Mice",
+                      "emoji": "🐀",
+                      "category": "rodent",
+                      "score": 5,
+                      "score10": 5,
+                      "baseline": 5,
+                      "baseline_comparison": "near",
+                      "level": "moderate",
+                      "trend": "flat",
+                      "trend_basis": "seasonal_baseline",
+                      "week_over_week": null,
+                      "note": "The model estimates a lower rodent outlook; indoor activity is still possible."
+                    }
+                  ],
+                  "attribution": {
+                    "brand": "Waves Pest Control",
+                    "text": "Florida Pest Pressure Forecast by Waves Pest Control",
+                    "url": "https://www.wavespestcontrol.com/tools/pest-pressure-forecast/?utm_source=embed&utm_medium=widget&utm_campaign=pest-forecast&utm_content=bradenton-fl"
+                  },
+                  "disclaimer": "A seasonal and weather-based model, not a measurement or guarantee of pest activity. Local observation accuracy has not yet been validated."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The forecast could not be built. Try again later.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "forecast_unavailable"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/yard-calendar": {
+      "get": {
+        "tags": [
+          "Yard pressure calendar"
+        ],
+        "operationId": "getYardCalendar",
+        "summary": "Monthly yard pressure calendar for Southwest Florida lawns, shrubs and weeds",
+        "description": "What is active in Southwest Florida yards this month (lawn pests, lawn diseases, shrub and tree pests, weeds), with a level for every month of the year.",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "description": "Month 1 to 12. Default: the current month (US Eastern).",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            },
+            "example": 11
+          },
+          {
+            "name": "grass",
+            "in": "query",
+            "required": false,
+            "description": "Filter lawn items by turf: `sta` St. Augustine, `bah` Bahia, `zoy` Zoysia, `ber` Bermuda, or `all`.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "sta",
+                "bah",
+                "zoy",
+                "ber"
+              ]
+            },
+            "example": "sta"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The calendar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/YardCalendar"
+                },
+                "example": {
+                  "month": 11,
+                  "grass": "sta",
+                  "area": "Southwest Florida",
+                  "reviewedAt": "2026-10-02",
+                  "items": [
+                    {
+                      "id": "sod-webworm",
+                      "category": "lawn",
+                      "name": "Tropical sod webworm",
+                      "hosts": "St. Augustine, Bermuda, Bahia",
+                      "grassKeys": [
+                        "sta",
+                        "ber",
+                        "bah"
+                      ],
+                      "level": 3,
+                      "levelLabel": "Peak season",
+                      "levels": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        3,
+                        3,
+                        3,
+                        1
+                      ],
+                      "trend": "easing_next_month",
+                      "sign": "Notched, chewed blades and ragged patches. The larvae do the damage; moths flying up at dusk mean it is time to look.",
+                      "lookAlike": "Looks like: chinch bug or drought patches, but the blades are chewed.",
+                      "infoOnly": false,
+                      "serviceLine": "lawn",
+                      "link": "/pest-identifier/sod-webworm/"
+                    },
+                    {
+                      "id": "white-grub",
+                      "category": "lawn",
+                      "name": "White grubs",
+                      "hosts": "All grasses",
+                      "grassKeys": [
+                        "sta",
+                        "bah",
+                        "zoy",
+                        "ber"
+                      ],
+                      "level": 1,
+                      "levelLabel": "Low year-round",
+                      "levels": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        3,
+                        3,
+                        3,
+                        1,
+                        1
+                      ],
+                      "trend": null,
+                      "sign": "Wilting patches that peel back like carpet, with C-shaped grubs in the soil.",
+                      "lookAlike": "Looks like: drought stress, but the turf lifts with no roots.",
+                      "infoOnly": false,
+                      "serviceLine": "lawn",
+                      "link": "/pest-identifier/white-grub/"
+                    }
+                  ],
+                  "planAhead": [
+                    "Winter weeds are still in the pre-emergent window."
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A bad `month` or `grass` value.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "invalid_month",
+                  "message": "month must be an integer from 1 to 12"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "Location": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "example": "bradenton-fl"
+          },
+          "label": {
+            "type": "string",
+            "example": "Bradenton, FL"
+          },
+          "region": {
+            "type": "string"
+          },
+          "county": {
+            "type": "string",
+            "example": "Manatee"
+          }
+        },
+        "required": [
+          "slug",
+          "label"
+        ]
+      },
+      "Locations": {
+        "type": "object",
+        "properties": {
+          "locations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Location"
+            }
+          }
+        },
+        "required": [
+          "locations"
+        ]
+      },
+      "WateringPlan": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "object",
+            "properties": {
+              "slug": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "county": {
+                "type": "string"
+              }
+            }
+          },
+          "asOf": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "week": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "string",
+                "format": "date"
+              },
+              "end": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          },
+          "rain": {
+            "type": "object",
+            "properties": {
+              "last7Inches": {
+                "type": "number",
+                "nullable": true
+              },
+              "source": {
+                "type": "string"
+              }
+            }
+          },
+          "forecast": {
+            "type": "object",
+            "properties": {
+              "rainInches": {
+                "type": "number"
+              },
+              "et0Inches": {
+                "type": "number"
+              }
+            },
+            "nullable": true
+          },
+          "need": {
+            "type": "object",
+            "properties": {
+              "targetInches": {
+                "type": "number"
+              },
+              "basis": {
+                "type": "string"
+              },
+              "netInches": {
+                "type": "number"
+              }
+            }
+          },
+          "plan": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "run",
+                  "hold",
+                  "need_only",
+                  "unavailable"
+                ]
+              },
+              "events": {
+                "type": "integer",
+                "nullable": true
+              },
+              "depthInches": {
+                "type": "number",
+                "nullable": true
+              },
+              "minutesPerEvent": {
+                "type": "integer",
+                "nullable": true
+              },
+              "conditionalOnForecast": {
+                "type": "boolean"
+              },
+              "legalMaxEvents": {
+                "type": "integer",
+                "nullable": true
+              }
+            }
+          },
+          "restriction": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "maxDaysPerWeek": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "nullable": true
+          },
+          "rulesUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "text": {
+            "type": "object",
+            "properties": {
+              "headline": {
+                "type": "string"
+              },
+              "action": {
+                "type": "string"
+              },
+              "notes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "landing": {
+            "type": "string",
+            "format": "uri"
+          },
+          "brand": {
+            "type": "string"
+          },
+          "disclaimer": {
+            "type": "string"
+          }
+        }
+      },
+      "Pest": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "emoji": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          },
+          "score10": {
+            "type": "number"
+          },
+          "baseline": {
+            "type": "number"
+          },
+          "baseline_comparison": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string"
+          },
+          "trend": {
+            "type": "string"
+          },
+          "trend_basis": {
+            "type": "string"
+          },
+          "week_over_week": {
+            "type": "number",
+            "nullable": true
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "PestForecast": {
+        "type": "object",
+        "properties": {
+          "model_version": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string"
+              },
+              "observation_validation": {
+                "type": "string"
+              }
+            }
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "as_of_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "month": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          },
+          "month_name": {
+            "type": "string"
+          },
+          "weather": {
+            "type": "object",
+            "properties": {
+              "available": {
+                "type": "boolean"
+              },
+              "temp_high_f": {
+                "type": "number",
+                "nullable": true
+              },
+              "precip_chance": {
+                "type": "number",
+                "nullable": true
+              },
+              "recent_rain_in": {
+                "type": "number",
+                "nullable": true
+              },
+              "source": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              }
+            }
+          },
+          "summary": {
+            "type": "string"
+          },
+          "pests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Pest"
+            }
+          },
+          "attribution": {
+            "type": "object",
+            "properties": {
+              "brand": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              }
+            }
+          },
+          "disclaimer": {
+            "type": "string"
+          }
+        }
+      },
+      "YardItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "hosts": {
+            "type": "string"
+          },
+          "grassKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "level": {
+            "type": "integer"
+          },
+          "levelLabel": {
+            "type": "string"
+          },
+          "levels": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Pressure level for each month, January to December."
+          },
+          "trend": {
+            "type": "string"
+          },
+          "sign": {
+            "type": "string"
+          },
+          "lookAlike": {
+            "type": "string",
+            "nullable": true
+          },
+          "infoOnly": {
+            "type": "boolean"
+          },
+          "serviceLine": {
+            "type": "string",
+            "nullable": true
+          },
+          "link": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "YardCalendar": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          },
+          "grass": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "reviewedAt": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/YardItem"
+            }
+          },
+          "planAhead": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

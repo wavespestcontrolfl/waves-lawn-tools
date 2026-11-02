@@ -7,6 +7,9 @@ the data changes a few times a day at most.
 
 Base URL: `https://portal.wavespestcontrol.com`
 
+An OpenAPI 3.0 description of every endpoint below, with example responses, is in
+[openapi.json](openapi.json).
+
 ## Lawn watering plan
 
 `GET /api/public/watering-plan`
@@ -48,6 +51,22 @@ Response keys: `location` (`slug`, `label`, `county`), `asOf`, `week` (`start`, 
 
 An embeddable widget for it is on the
 [Pest Pressure Forecast page](https://www.wavespestcontrol.com/tools/pest-pressure-forecast/).
+
+## Yard pressure calendar
+
+`GET /api/public/yard-calendar?month=11&grass=sta`: what is active in Southwest Florida yards
+that month, derived from the Waves species catalog. Each entry in `items` is a
+lawn pest, lawn disease, shrub or tree pest, or weed (`id`, `category`, `name`, `hosts`,
+`level`, `levelLabel`, `trend`, `sign`, ...), with `levels`, its level for every month from
+January to December. `planAhead` lists what to plan for now.
+
+| Parameter | Required | Values |
+|---|---|---|
+| `month` | no | `1` to `12`; default: the current month (US Eastern) |
+| `grass` | no | `all` (default), `sta` St. Augustine, `bah` Bahia, `zoy` Zoysia, `ber` Bermuda |
+
+Any other value is a `400` (`invalid_month` or `invalid_grass`). The content changes once a
+month, so cache it.
 
 ## MCP server (for AI agents)
 
