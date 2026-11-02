@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "waves-lawn-tools"
+version = "1.2.0"
+description = "Florida lawn-watering math (sprinkler runtime to inches per week, a weekly plan under local watering limits) and a client for the free Waves public API: watering plan, pest pressure forecast, yard pressure calendar, Pest Pressure Index."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Waves Pest Control, LLC" }]
+keywords = [
+    "irrigation",
+    "lawn",
+    "turfgrass",
+    "florida",
+    "sprinkler",
+    "evapotranspiration",
+    "watering-restrictions",
+    "pest-control",
+    "pest-forecast",
+    "api-client",
+    "public-api",
+    "open-data",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Home Automation",
+    "Typing :: Typed",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://www.wavespestcontrol.com/tools/lawn-watering-calculator/"
+Repository = "https://github.com/wavespestcontrolfl/waves-lawn-tools"
+Documentation = "https://github.com/wavespestcontrolfl/waves-lawn-tools/blob/main/docs/public-api.md"
+Issues = "https://github.com/wavespestcontrolfl/waves-lawn-tools/issues"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+waves_lawn_tools = ["py.typed"]
