@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Florida Lawn Watering Calculator</title>
+  <meta name="description" content="This week's lawn watering plan for a Florida city: measured rain, the forecast and the local watering limit, in minutes per zone.">
+  <style>
+    :root {
+      --bg: #f4f9fc;
+      --card: #ffffff;
+      --text: #12324a;
+      --muted: #4d6678;
+      --line: #d3e2ec;
+      --link: #0b5f9e;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0e1c27;
+        --card: #14283a;
+        --text: #e6f0f7;
+        --muted: #a5bccb;
+        --line: #26435a;
+        --link: #7cc4f5;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px 16px 40px;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    main { max-width: 640px; margin: 0 auto; }
+    h1 { font-size: 1.6rem; line-height: 1.2; margin: 0 0 8px; }
+    p { margin: 0 0 14px; }
+    a { color: var(--link); }
+    .lede { color: var(--muted); }
+    .widget {
+      max-width: 420px;
+      margin: 24px auto;
+      padding: 0;
+    }
+    .links { padding-left: 20px; margin: 0 0 20px; }
+    .links li { margin-bottom: 6px; }
+    .snippet {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre;
+    }
+    footer { margin-top: 28px; color: var(--muted); font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Florida Lawn Watering Calculator</h1>
+    <p class="lede">
+      How long should the sprinklers run this week? This card counts the last 7 days of measured
+      rain, the week's forecast and the local watering limit, and answers in minutes per zone.
+      It shows Bradenton, FL. Pick another city on the full calculator.
+    </p>
+
+    <div class="widget">
+      <!-- The free embed from https://www.wavespestcontrol.com/tools/lawn-watering-calculator/#embed -->
+      <div class="waves-watering-plan" data-location="bradenton-fl">
+        <a href="https://www.wavespestcontrol.com/tools/lawn-watering-calculator/">Lawn Watering Calculator — Bradenton, FL · by Waves Pest Control</a>
+      </div>
+      <script async src="https://www.wavespestcontrol.com/embed/watering-plan.v1.js"></script>
+    </div>
+
+    <ul class="links">
+      <li><a href="https://www.wavespestcontrol.com/tools/lawn-watering-calculator/" target="_blank" rel="noopener">Open the full Lawn Watering Calculator</a> (any Florida city or ZIP)</li>
+      <li><a href="https://www.wavespestcontrol.com/tools/lawn-watering-calculator/#embed" target="_blank" rel="noopener">Add this card to your own site</a></li>
+      <li><a href="https://github.com/wavespestcontrolfl/waves-lawn-tools/blob/main/docs/public-api.md" target="_blank" rel="noopener">Free public API docs</a> (no key, open CORS)</li>
+      <li><a href="https://github.com/wavespestcontrolfl/waves-lawn-tools" target="_blank" rel="noopener">Code on GitHub</a> (MIT) and <a href="https://pypi.org/project/waves-lawn-tools/" target="_blank" rel="noopener">the Python package</a></li>
+    </ul>
+
+    <p>To show your city, change <code>data-location</code> in the snippet to a city slug such as <code>venice-fl</code>:</p>
+    <div class="snippet">&lt;div class="waves-watering-plan" data-location="bradenton-fl"&gt;
+  &lt;a href="https://www.wavespestcontrol.com/tools/lawn-watering-calculator/"&gt;Lawn Watering Calculator — Bradenton, FL · by Waves Pest Control&lt;/a&gt;
+&lt;/div&gt;
+&lt;script async src="https://www.wavespestcontrol.com/embed/watering-plan.v1.js"&gt;&lt;/script&gt;</div>
+
+    <footer>
+      A weather-based estimate, not a measurement of your yard. Your local watering rules always come first.
+      From <a href="https://www.wavespestcontrol.com/" target="_blank" rel="noopener">Waves Pest Control &amp; Lawn Care</a>.
+      No tracking on this page.
+    </footer>
+  </main>
+</body>
+</html>
