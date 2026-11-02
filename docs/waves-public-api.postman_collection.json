@@ -2,7 +2,7 @@
   "info": {
     "name": "Waves Pest Control Public API",
     "_postman_id": "6f6c2b52-6a2e-4f0e-9d7c-5f1b3c0e1a01",
-    "description": "Free, read-only JSON endpoints for Florida lawns and homes, from Waves Pest Control & Lawn Care in Southwest Florida: a weekly lawn watering plan, a monthly pest pressure forecast by city or ZIP, and a monthly yard pressure calendar for lawns, shrubs and weeds. No key and no sign-up. CORS is open (Access-Control-Allow-Origin: *), so a web page on any site can call them. Please cache responses: they carry Cache-Control headers, and the data changes a few times a day at most. The forecast and the calendar are seasonal, weather-based models, not measurements.\n\nAI agents can use the same data through the public MCP server at https://portal.wavespestcontrol.com/api/public/mcp (MCP Registry name com.wavespestcontrol/pest-control).\n\nDocs: https://github.com/wavespestcontrolfl/waves-lawn-tools/blob/main/docs/public-api.md",
+    "description": "Free, read-only JSON endpoints for Florida lawns and homes, from Waves Pest Control & Lawn Care in Southwest Florida: a weekly lawn watering plan, a monthly pest pressure forecast by city or ZIP, a monthly yard pressure calendar for lawns, shrubs and weeds, and the county Pest Pressure Index. No key and no sign-up. CORS is open (Access-Control-Allow-Origin: *), so a web page on any site can call them. Please cache responses: they carry Cache-Control headers, and the data changes a few times a day at most. The forecast and the calendar are seasonal, weather-based models, not measurements.\n\nAI agents can use the same data through the public MCP server at https://portal.wavespestcontrol.com/api/public/mcp (MCP Registry name com.wavespestcontrol/pest-control).\n\nDocs: https://github.com/wavespestcontrolfl/waves-lawn-tools/blob/main/docs/public-api.md",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -637,6 +637,112 @@
             }
           ],
           "body": "{\n  \"error\": \"invalid_month\",\n  \"message\": \"month must be an integer from 1 to 12\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "County averages of technician pest-activity ratings (Pest Pressure Index)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/public/pest-pressure-index?format=json",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "public",
+            "pest-pressure-index"
+          ],
+          "query": [
+            {
+              "key": "format",
+              "value": "json",
+              "description": "`json` (default) or `csv` (text/csv, one row per group).",
+              "disabled": false
+            }
+          ]
+        },
+        "description": "The Southwest Florida Pest Pressure Index: county averages of the pest-activity rating (0 None to 5 High) that Waves technicians record at completed service visits. Only county and service-line groups with 20 or more visits in the window are listed; smaller groups are counted in hidden_groups. It is an average of technician ratings, not a survey and not a forecast. Data license: CC BY 4.0. Page: https://www.wavespestcontrol.com/pest-pressure-index/."
+      },
+      "response": [
+        {
+          "name": "200 The index (JSON)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/pest-pressure-index?format=json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "pest-pressure-index"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json",
+                  "description": "`json` (default) or `csv` (text/csv, one row per group).",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "body": "{\n  \"name\": \"Waves Pest Pressure Index\",\n  \"region\": \"Southwest Florida\",\n  \"window\": {\n    \"start\": \"2026-09-24\",\n    \"end\": \"2026-11-01\",\n    \"days\": 39\n  },\n  \"scale\": {\n    \"min\": 0,\n    \"max\": 5,\n    \"labels\": {\n      \"0\": \"None\",\n      \"1\": \"Very Low\",\n      \"2\": \"Low\",\n      \"3\": \"Moderate\",\n      \"4\": \"Elevated\",\n      \"5\": \"High\"\n    },\n    \"meaning\": \"Technician's on-site pest activity rating at a completed Waves service visit.\"\n  },\n  \"min_visits\": 20,\n  \"groups\": [\n    {\n      \"county\": \"Manatee\",\n      \"service_line\": \"pest\",\n      \"visits\": 54,\n      \"average\": 2.2,\n      \"median\": 1.5\n    }\n  ],\n  \"hidden_groups\": 1,\n  \"source\": \"Completed Waves Pest Control service visits rated by the technician on site. Not a survey and not a forecast.\",\n  \"license\": {\n    \"name\": \"CC BY 4.0\",\n    \"url\": \"https://creativecommons.org/licenses/by/4.0/\"\n  },\n  \"citation\": \"Waves Pest Control. Southwest Florida Pest Pressure Index. https://www.wavespestcontrol.com/pest-pressure-index/\",\n  \"page_url\": \"https://www.wavespestcontrol.com/pest-pressure-index/\",\n  \"generated_at\": \"2026-11-02T07:51:36.600Z\"\n}"
+        },
+        {
+          "name": "200 The index (CSV)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/pest-pressure-index?format=csv",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "pest-pressure-index"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "csv",
+                  "description": "`json` (default) or `csv` (text/csv, one row per group).",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "text",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "text/csv; charset=utf-8"
+            }
+          ],
+          "body": "county,service_line,visits,average,median,window_start,window_end\nManatee,pest,54,2.2,1.5,2026-09-24,2026-11-01\n"
         }
       ]
     }

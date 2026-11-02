@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Waves Pest Control Public API",
-    "version": "1.0.0",
-    "description": "Free, read-only JSON endpoints for Florida lawns and homes, from Waves Pest Control & Lawn Care in Southwest Florida: a weekly lawn watering plan, a monthly pest pressure forecast by city or ZIP, and a monthly yard pressure calendar for lawns, shrubs and weeds. No key and no sign-up. CORS is open (Access-Control-Allow-Origin: *), so a web page on any site can call them. Please cache responses: they carry Cache-Control headers, and the data changes a few times a day at most. The forecast and the calendar are seasonal, weather-based models, not measurements.\n\nAI agents can use the same data through the public MCP server at https://portal.wavespestcontrol.com/api/public/mcp (MCP Registry name com.wavespestcontrol/pest-control).",
+    "version": "1.1.0",
+    "description": "Free, read-only JSON endpoints for Florida lawns and homes, from Waves Pest Control & Lawn Care in Southwest Florida: a weekly lawn watering plan, a monthly pest pressure forecast by city or ZIP, a monthly yard pressure calendar for lawns, shrubs and weeds, and the county Pest Pressure Index. No key and no sign-up. CORS is open (Access-Control-Allow-Origin: *), so a web page on any site can call them. Please cache responses: they carry Cache-Control headers, and the data changes a few times a day at most. The forecast and the calendar are seasonal, weather-based models, not measurements.\n\nAI agents can use the same data through the public MCP server at https://portal.wavespestcontrol.com/api/public/mcp (MCP Registry name com.wavespestcontrol/pest-control).",
     "contact": {
       "name": "Waves Pest Control",
       "url": "https://www.wavespestcontrol.com/",
@@ -29,6 +29,9 @@
     },
     {
       "name": "Yard pressure calendar"
+    },
+    {
+      "name": "Pest Pressure Index"
     }
   ],
   "paths": {
@@ -533,6 +536,102 @@
           }
         }
       }
+    },
+    "/api/public/pest-pressure-index": {
+      "get": {
+        "tags": [
+          "Pest Pressure Index"
+        ],
+        "operationId": "getPestPressureIndex",
+        "summary": "County averages of technician pest-activity ratings (Pest Pressure Index)",
+        "description": "The Southwest Florida Pest Pressure Index: county averages of the pest-activity rating (0 None to 5 High) that Waves technicians record at completed service visits. Only county and service-line groups with 20 or more visits in the window are listed; smaller groups are counted in hidden_groups. It is an average of technician ratings, not a survey and not a forecast. Data license: CC BY 4.0. Page: https://www.wavespestcontrol.com/pest-pressure-index/.",
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "description": "`json` (default) or `csv` (text/csv, one row per group).",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "json",
+                "csv"
+              ],
+              "default": "json"
+            },
+            "example": "json"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The index.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PestPressureIndex"
+                },
+                "example": {
+                  "name": "Waves Pest Pressure Index",
+                  "region": "Southwest Florida",
+                  "window": {
+                    "start": "2026-09-24",
+                    "end": "2026-11-01",
+                    "days": 39
+                  },
+                  "scale": {
+                    "min": 0,
+                    "max": 5,
+                    "labels": {
+                      "0": "None",
+                      "1": "Very Low",
+                      "2": "Low",
+                      "3": "Moderate",
+                      "4": "Elevated",
+                      "5": "High"
+                    },
+                    "meaning": "Technician's on-site pest activity rating at a completed Waves service visit."
+                  },
+                  "min_visits": 20,
+                  "groups": [
+                    {
+                      "county": "Manatee",
+                      "service_line": "pest",
+                      "visits": 54,
+                      "average": 2.2,
+                      "median": 1.5
+                    }
+                  ],
+                  "hidden_groups": 1,
+                  "source": "Completed Waves Pest Control service visits rated by the technician on site. Not a survey and not a forecast.",
+                  "license": {
+                    "name": "CC BY 4.0",
+                    "url": "https://creativecommons.org/licenses/by/4.0/"
+                  },
+                  "citation": "Waves Pest Control. Southwest Florida Pest Pressure Index. https://www.wavespestcontrol.com/pest-pressure-index/",
+                  "page_url": "https://www.wavespestcontrol.com/pest-pressure-index/",
+                  "generated_at": "2026-11-02T07:51:36.600Z"
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "county,service_line,visits,average,median,window_start,window_end\nManatee,pest,54,2.2,1.5,2026-09-24,2026-11-01\n"
+              }
+            }
+          },
+          "429": {
+            "description": "More than 120 requests in 15 minutes from one address.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -963,6 +1062,109 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "PestPressureIndex": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "window": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "string",
+                "format": "date"
+              },
+              "end": {
+                "type": "string",
+                "format": "date"
+              },
+              "days": {
+                "type": "integer"
+              }
+            }
+          },
+          "scale": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "integer"
+              },
+              "max": {
+                "type": "integer"
+              },
+              "labels": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "meaning": {
+                "type": "string"
+              }
+            }
+          },
+          "min_visits": {
+            "type": "integer",
+            "description": "A group is listed only with at least this many visits."
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "county": {
+                  "type": "string"
+                },
+                "service_line": {
+                  "type": "string"
+                },
+                "visits": {
+                  "type": "integer"
+                },
+                "average": {
+                  "type": "number",
+                  "description": "Mean rating, 0 to 5."
+                },
+                "median": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "hidden_groups": {
+            "type": "integer",
+            "description": "Groups under min_visits, left out."
+          },
+          "source": {
+            "type": "string"
+          },
+          "license": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "citation": {
+            "type": "string"
+          },
+          "page_url": {
+            "type": "string"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

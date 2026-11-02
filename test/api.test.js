@@ -9,7 +9,12 @@ function fakeFetch(status, body) {
   const calls = [];
   const fn = async (url, init) => {
     calls.push({ url, init });
-    return { ok: status >= 200 && status < 300, status, json: async () => body };
+    return {
+      ok: status >= 200 && status < 300,
+      status,
+      json: async () => (typeof body === 'string' ? JSON.parse(body) : body),
+      text: async () => (typeof body === 'string' ? body : JSON.stringify(body)),
+    };
   };
   fn.calls = calls;
   return fn;
@@ -40,6 +45,22 @@ test('getPestForecast and getYardCalendar hit their paths with their parameters'
   assert.equal(fetch.calls[1].url, 'http://localhost:3000/api/public/yard-calendar?month=11&grass=sta');
 });
 
+test('getPestPressureIndex asks for JSON by default and for CSV text on request', async () => {
+  const json = fakeFetch(200, { name: 'Waves Pest Pressure Index', min_visits: 20, groups: [] });
+  const body = await api.getPestPressureIndex({}, { fetch: json });
+  assert.equal(body.min_visits, 20);
+  assert.equal(json.calls[0].url, 'https://portal.wavespestcontrol.com/api/public/pest-pressure-index');
+  assert.equal(json.calls[0].init.headers.accept, 'application/json');
+
+  const csvText = 'county,service_line,visits,average,median,window_start,window_end\nManatee,pest,54,2.2,1.5,2026-09-24,2026-11-01\n';
+  const csv = fakeFetch(200, csvText);
+  assert.equal(await api.getPestPressureIndex({ format: 'csv' }, { fetch: csv }), csvText);
+  assert.equal(csv.calls[0].url, 'https://portal.wavespestcontrol.com/api/public/pest-pressure-index?format=csv');
+  assert.equal(csv.calls[0].init.headers.accept, 'text/csv');
+
+  await assert.rejects(async () => api.getPestPressureIndex({ format: 'xml' }, { fetch: json }), RangeError);
+});
+
 test('an error answer throws WavesApiError with the status and the API code', async () => {
   const fetch = fakeFetch(400, { error: 'unsupported_zip', message: 'That ZIP code is not in a supported Florida area.' });
   await assert.rejects(api.getWateringPlan({ zip: '99999' }, { fetch }), (err) => {
@@ -55,5 +76,6 @@ test('the package root exports the watering math and the client together', () =>
   assert.equal(typeof pkg.buildWeekPlan, 'function');
   assert.equal(typeof pkg.deriveIrrigationInchesPerWeek, 'function');
   assert.equal(typeof pkg.getWateringPlan, 'function');
+  assert.equal(typeof pkg.getPestPressureIndex, 'function');
   assert.equal(pkg.BASE_URL, 'https://portal.wavespestcontrol.com');
 });

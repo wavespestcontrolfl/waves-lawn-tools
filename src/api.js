@@ -22,7 +22,9 @@ async function getJson(path, params, options = {}) {
     if (value === undefined || value === null || value === '') continue;
     url.searchParams.set(key, typeof value === 'boolean' ? (value ? '1' : '0') : String(value));
   }
-  const res = await fetchImpl(url.toString(), { headers: { accept: 'application/json' }, signal });
+  const csv = options.accept === 'text/csv';
+  const res = await fetchImpl(url.toString(), { headers: { accept: csv ? 'text/csv' : 'application/json' }, signal });
+  if (csv && res.ok) return res.text();
   const body = await res.json().catch(() => null);
   if (!res.ok) throw new WavesApiError(res.status, body);
   return body;
@@ -53,6 +55,17 @@ function getYardCalendar({ month, grass } = {}, options) {
   return getJson('/api/public/yard-calendar', { month, grass }, options);
 }
 
+/**
+ * The Southwest Florida Pest Pressure Index: county averages of technician pest-activity ratings (0-5) from completed
+ * Waves service visits. Only groups with 20 or more visits are listed. Data license: CC BY 4.0. Page:
+ * https://www.wavespestcontrol.com/pest-pressure-index/. format: 'json' (default, an object) or 'csv' (the CSV as a string).
+ */
+function getPestPressureIndex({ format = 'json' } = {}, options = {}) {
+  if (format !== 'json' && format !== 'csv') throw new RangeError("format must be 'json' or 'csv'");
+  if (format === 'csv') return getJson('/api/public/pest-pressure-index', { format }, { ...options, accept: 'text/csv' });
+  return getJson('/api/public/pest-pressure-index', {}, options);
+}
+
 module.exports = {
   BASE_URL,
   WavesApiError,
@@ -60,4 +73,5 @@ module.exports = {
   getPestForecastLocations,
   getPestForecast,
   getYardCalendar,
+  getPestPressureIndex,
 };

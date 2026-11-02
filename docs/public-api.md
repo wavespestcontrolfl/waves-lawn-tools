@@ -68,6 +68,84 @@ January to December. `planAhead` lists what to plan for now.
 Any other value is a `400` (`invalid_month` or `invalid_grass`). The content changes once a
 month, so cache it.
 
+## Pest Pressure Index
+
+`GET /api/public/pest-pressure-index`: county averages of the pest-activity rating that
+Waves technicians record at completed service visits, on a scale from 0 (None) to 5 (High),
+over the last few weeks. It is an average of technician ratings, not a survey and not a
+forecast. A county and service line is listed only with **20 or more visits** in the window;
+smaller groups are counted in `hidden_groups` and left out. Page:
+[Pest Pressure Index](https://www.wavespestcontrol.com/pest-pressure-index/).
+
+| Parameter | Required | Values |
+|---|---|---|
+| `format` | no | `json` (default) or `csv` (`text/csv`, one row per group) |
+
+```sh
+curl "https://portal.wavespestcontrol.com/api/public/pest-pressure-index"
+curl "https://portal.wavespestcontrol.com/api/public/pest-pressure-index?format=csv"
+```
+
+```json
+{
+  "name": "Waves Pest Pressure Index",
+  "region": "Southwest Florida",
+  "window": {
+    "start": "2026-09-24",
+    "end": "2026-11-01",
+    "days": 39
+  },
+  "scale": {
+    "min": 0,
+    "max": 5,
+    "labels": {
+      "0": "None",
+      "1": "Very Low",
+      "2": "Low",
+      "3": "Moderate",
+      "4": "Elevated",
+      "5": "High"
+    },
+    "meaning": "Technician's on-site pest activity rating at a completed Waves service visit."
+  },
+  "min_visits": 20,
+  "groups": [
+    {
+      "county": "Manatee",
+      "service_line": "pest",
+      "visits": 54,
+      "average": 2.2,
+      "median": 1.5
+    }
+  ],
+  "hidden_groups": 1,
+  "source": "Completed Waves Pest Control service visits rated by the technician on site. Not a survey and not a forecast.",
+  "license": {
+    "name": "CC BY 4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "citation": "Waves Pest Control. Southwest Florida Pest Pressure Index. https://www.wavespestcontrol.com/pest-pressure-index/",
+  "page_url": "https://www.wavespestcontrol.com/pest-pressure-index/",
+  "generated_at": "2026-11-02T07:51:36.600Z"
+}
+```
+
+The CSV form (the columns add the window dates):
+
+```csv
+county,service_line,visits,average,median,window_start,window_end
+Manatee,pest,54,2.2,1.5,2026-09-24,2026-11-01
+```
+
+Response keys: `name`, `region`, `window` (`start`, `end`, `days`), `scale` (`min`, `max`,
+`labels`, `meaning`), `min_visits`, `groups` (`county`, `service_line`, `visits`, `average`,
+`median`), `hidden_groups`, `source`, `license`, `citation`, `page_url`, `generated_at`.
+
+- The data is licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Credit it
+  with the `citation` text and link `page_url`.
+- Cache it: the answer carries `Cache-Control: public, max-age=3600`.
+- Errors: `429` past 120 requests in 15 minutes from one address.
+
 ## MCP server (for AI agents)
 
 `https://portal.wavespestcontrol.com/api/public/mcp` is a public, read-only MCP server
