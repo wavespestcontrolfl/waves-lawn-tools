@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sprinkler catch-can calculator · Waves Lawn Tools</title>
+  <meta name="description" content="Use eight measured catch-can depths to calculate a sprinkler zone’s application rate and lower-quarter distribution uniformity. Includes a worked example.">
+  <link rel="canonical" href="https://wavespestcontrolfl.github.io/waves-lawn-tools/">
+  <style>
+    :root { color-scheme: light; --ink: #152d40; --blue: #10566d; --line: #bbcdd4; }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; color: var(--ink); background: #edf3f5; font: 1rem/1.55 "IBM Plex Sans", system-ui, sans-serif; }
+    main { max-width: 64rem; margin: 0 auto; padding: clamp(1rem, 4vw, 3rem); }
+    h1, h2 { line-height: 1.1; letter-spacing: -.035em; }
+    h1 { font-size: clamp(2.6rem, 6vw, 4.2rem); margin: .5rem 0 1rem; max-width: 17ch; }
+    h2 { font-size: 1.5rem; margin: 0 0 .75rem; }
+    p { margin: .55rem 0; }
+    .credit { font-size: .92rem; color: var(--blue); }
+    header { max-width: 47rem; margin-bottom: 1.7rem; }
+    .layout { display: grid; gap: 1.2rem; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+    form, aside { border: 1px solid var(--line); border-top: .28rem solid var(--blue); padding: clamp(1.1rem, 3vw, 1.8rem); background: #fff; }
+    aside { align-self: start; background: #f9fcfd; }
+    label { display: block; font-weight: 650; }
+    input { display: block; font: inherit; width: 100%; padding: .42rem .5rem; color: var(--ink); background: white; border: 1px solid #78919c; border-radius: .2rem; }
+    #minutes { width: 8rem; margin: .25rem 0 1rem; }
+    fieldset { padding: 0; margin: 0; border: 0; min-width: 0; }
+    legend { font-weight: 650; padding: 0; margin-top: 1rem; }
+    .cups { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; margin: .65rem 0 1.1rem; }
+    .cups label { font-size: .92rem; font-weight: 500; }
+    .actions { display: flex; flex-wrap: wrap; gap: .65rem; }
+    button { font: inherit; font-weight: 650; padding: .5rem .95rem; border-radius: .22rem; border: 1px solid var(--blue); color: white; background: var(--blue); cursor: pointer; }
+    button.secondary { background: #fff; color: var(--blue); }
+    a { color: #07536d; text-underline-offset: .18em; }
+    :focus-visible { outline: 3px solid #ca6800; outline-offset: 3px; }
+    #results { margin-top: 1.5rem; }
+    #results p { margin: .35rem 0; }
+    footer { border-top: 1px solid var(--line); padding-top: 1rem; margin-top: 1.4rem; }
+    @media (max-width: 44rem) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 25rem) { .cups { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media print { body { background: white; } main { padding: 0; } .actions { display: none; } .layout { display: block; } aside { margin-top: .75rem; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="credit">Waves Lawn Tools · A public project by Waves Pest Control</p>
+      <h1>Sprinkler catch-can calculator</h1>
+      <p>How much water reaches the dry corner of your lawn? Set eight identical, straight-sided containers across one sprinkler zone, including the area you’re concerned about. Mark their locations. Run that zone for a measured time during a permitted watering period, then measure the depth in each can with the same ruler.</p>
+    </header>
+    <div class="layout">
+      <form id="test">
+        <h2>Measure one zone</h2>
+        <label for="minutes">Actual run time in minutes</label>
+        <input id="minutes" name="minutes" type="number" inputmode="decimal" required step="any" min="0">
+        <fieldset>
+          <legend>Water depth in inches</legend>
+          <p>Enter zero for a dry can. Number the cans in the same order as your sketch or photo.</p>
+          <div class="cups">
+            <label>Can 1<input name="depth" type="number" inputmode="decimal" required min="0" step="any"></label>
+            <label>Can 2<input name="depth" type="number" inputmode="decimal" required min="0" step="any"></label>
+            <label>Can 3<input name="depth" type="number" inputmode="decimal" required min="0" step="any"></label>
+            <label>Can 4<input name="depth" type="number" inputmode="decimal" required min="0" step="any"></label>
+            <label>Can 5<input name="depth" type="number" inputmode="decimal" required min="0" step="any"></label>
+            <label>Can 6<input name="depth" type="number" inputmode="decimal" required min="0" step="any"></label>
+            <label>Can 7<input name="depth" type="number" inputmode="decimal" required min="0" step="any"></label>
+            <label>Can 8<input name="depth" type="number" inputmode="decimal" required min="0" step="any"></label>
+          </div>
+        </fieldset>
+        <div class="actions" hidden id="actions"><button>Calculate</button><button class="secondary" type="button" id="example">Use example readings</button></div>
+        <noscript>Use the worked example and formulas alongside the form to calculate by hand.</noscript>
+        <div id="results" aria-live="polite" aria-atomic="true"></div>
+      </form>
+      <aside>
+        <h2>What the readings tell you</h2>
+        <p><strong>Application rate.</strong> Average the eight depths, multiply by 60, then divide by the number of minutes the zone ran. The result is inches per hour.</p>
+        <p><strong>Coverage.</strong> Average the two lowest depths and divide by the average of all eight. Multiply by 100 to get lower-quarter distribution uniformity. A value closer to 100% means the measured locations received more similar amounts.</p>
+        <p><strong>Worked example.</strong> Four cans hold 0.20 inches and four hold 0.40 inches after 15 minutes. The mean depth is 0.30 inches, the rate is 1.20 inches per hour, and the lowest quarter received 67% of the mean.</p>
+      </aside>
+    </div>
+    <footer>
+      <p>If the same cans finish low on a repeat test, look at those spots while the sprinklers run. Note any blocked spray or head pointing away from the lawn. For help starting just the zone you want to observe, see <a href="https://www.wavespestcontrol.com/sprinkler-timers/">Waves’ field guides to sprinkler timers</a>.</p>
+      <p>Methods from UF/IFAS Extension cover <a href="https://ask.ifas.ufl.edu/publication/AE220">measuring a residential zone’s application rate</a> and <a href="https://blogs.ifas.ufl.edu/columbiaco/2024/12/04/irrigation-efficiency-and-distribution-uniformity/">calculating lower-quarter uniformity</a>.</p>
+    </footer>
+  </main>
+  <script>
+    const form = document.querySelector('#test');
+    const minutes = document.querySelector('#minutes');
+    const cups = Array.from(form.querySelectorAll('[name="depth"]'));
+    const results = document.querySelector('#results');
+    document.querySelector('#actions').hidden = false;
+    form.addEventListener('input', () => {
+      minutes.setCustomValidity('');
+      results.replaceChildren();
+    });
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const duration = minutes.valueAsNumber;
+      if (duration <= 0) {
+        minutes.setCustomValidity('Enter a run time greater than zero.');
+        minutes.reportValidity();
+        return;
+      }
+      const depths = cups.map(cup => cup.valueAsNumber).sort((a, b) => a - b);
+      const mean = depths.reduce((sum, depth) => sum + depth, 0) / depths.length;
+      const lowQuarter = (depths[0] + depths[1]) / 2;
+      const lines = [
+        'Mean catch depth is ' + mean.toFixed(2) + ' inches.',
+        'Application rate is ' + (mean * 60 / duration).toFixed(2) + ' inches per hour.',
+        mean > 0 ? 'Lower-quarter uniformity is ' + Math.round(100 * lowQuarter / mean) + '%.' : 'All eight cans were dry. Uniformity cannot be calculated. Check the zone and repeat the test.'
+      ];
+      const heading = document.createElement('h2');
+      heading.textContent = 'Your measurements';
+      results.replaceChildren(heading, ...lines.map(line => {
+        const p = document.createElement('p');
+        p.textContent = line;
+        return p;
+      }));
+    });
+    document.querySelector('#example').addEventListener('click', () => {
+      minutes.setCustomValidity('');
+      minutes.value = '15';
+      cups.forEach((cup, index) => { cup.value = index < 4 ? '0.20' : '0.40'; });
+      form.requestSubmit();
+    });
+  </script>
+</body>
+</html>
