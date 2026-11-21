@@ -1,6 +1,8 @@
 site_name: Waves Lawn Tools
+site_description: Convert sprinkler run time to inches of water with the Waves Lawn Tools Python package and explore the public lawn watering API.
 site_url: !ENV READTHEDOCS_CANONICAL_URL
 repo_url: https://github.com/wavespestcontrolfl/waves-lawn-tools
+edit_uri: edit/main/docs/
 theme: readthedocs
 nav:
   - Sprinkler run time: index.md
