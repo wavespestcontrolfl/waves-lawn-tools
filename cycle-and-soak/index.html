@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cycle-and-soak sprinkler planner · Waves Lawn Tools</title>
+  <meta name="description" content="Split one sprinkler zone’s planned watering time into short runs. Enter the minutes your soil can absorb and the rest it needs, then print a schedule.">
+  <link rel="canonical" href="https://wavespestcontrolfl.github.io/waves-lawn-tools/cycle-and-soak/">
+  <style>
+    :root { color-scheme: light; --ink: #152d40; --water: #10566d; --line: #b6cbd0; }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; font: 1rem/1.55 "IBM Plex Sans", system-ui, sans-serif; background: #edf3f5; color: var(--ink); }
+    main { max-width: 62rem; margin: auto; padding: clamp(1rem, 4vw, 3rem); }
+    header { max-width: 45rem; margin-bottom: 1.5rem; }
+    h1, h2 { line-height: 1.12; letter-spacing: -.035em; }
+    h1 { font-size: clamp(2.35rem, 6vw, 4rem); margin: .6rem 0 1rem; }
+    h2 { font-size: 1.5rem; margin: 0 0 .7rem; }
+    p { margin: .5rem 0; }
+    .credit, .hint { font-size: .94rem; }
+    .credit { color: var(--water); }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+    form, aside, #results { background: white; border: 1px solid var(--line); border-top: .28rem solid var(--water); padding: clamp(1rem, 3vw, 1.65rem); }
+    aside { background: #f9fcfd; }
+    label { display: block; font-weight: 650; margin-top: 1.1rem; }
+    input { margin-top: .4rem; padding: .48rem .55rem; width: 7rem; font: inherit; color: var(--ink); border: 1px solid #69828b; border-radius: .25rem; }
+    button { margin-top: 1rem; font: inherit; font-weight: 650; padding: .55rem .95rem; color: white; background: var(--water); border: 1px solid var(--water); border-radius: .25rem; cursor: pointer; }
+    a { color: #07536d; text-underline-offset: .17em; }
+    :focus-visible { outline: 3px solid #b85900; outline-offset: 3px; }
+    #results { margin-top: 1.25rem; }
+    #summary { margin-bottom: 1rem; }
+    table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    caption { text-align: left; margin-bottom: .4rem; }
+    td, th { text-align: left; border-bottom: 1px solid var(--line); padding: .38rem .45rem; }
+    thead { background: #edf4f5; }
+    footer { border-top: 1px solid var(--line); margin-top: 1.5rem; padding-top: .65rem; }
+    @media (max-width: 44rem) { .layout { grid-template-columns: 1fr; } }
+    @media print {
+      body { background: white; color: black; }
+      main { padding: 0; max-width: none; }
+      header h1 { font-size: 1.7rem; }
+      button, form, nav, header .intro { display: none; }
+      .layout { display: block; }
+      main:has(#results:not([hidden])) aside { display: none; }
+      #results, aside { border: 0; padding: 0; }
+      tr { break-inside: avoid; }
+      thead { display: table-header-group; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="credit">Waves Lawn Tools</p>
+      <h1>Cycle-and-soak sprinkler planner</h1>
+      <p class="intro">When water starts running off a slope or pooling on the soil, stop the sprinkler. If the zone still needs water after it soaks in, use this planner to split the remaining watering into shorter runs.</p>
+    </header>
+    <div class="layout">
+      <form id="planner" hidden>
+        <h2>Plan one zone</h2>
+        <p>Use whole minutes. Keep the entire schedule inside your permitted watering window.</p>
+        <label for="total">Total watering time (minutes)</label>
+        <p id="total-hint" class="hint">Use the time you already intend to apply to this zone. Subtract any minutes you ran it today.</p>
+        <input id="total" type="number" min="1" max="240" step="1" inputmode="numeric" required aria-describedby="total-hint">
+        <label for="limit">Longest run without pooling (minutes)</label>
+        <p id="limit-hint" class="hint">Use a whole-minute run you observed the soil absorb. If runoff started at minute 9, try 8 or less.</p>
+        <input id="limit" type="number" min="1" max="240" step="1" inputmode="numeric" required aria-describedby="limit-hint">
+        <label for="pause">Soak time between runs (minutes)</label>
+        <p id="pause-hint" class="hint">Use the break this zone needs before it can take more water. One uninterrupted run needs no break.</p>
+        <input id="pause" type="number" min="0" max="1440" step="1" inputmode="numeric" required aria-describedby="pause-hint">
+        <div><button type="submit">Build schedule</button></div>
+      </form>
+      <aside>
+        <h2>A worked example</h2>
+        <p>A zone needs 22 minutes of watering. It can absorb 8 minutes at a time and needs 15 minutes to soak between runs.</p>
+        <p>Run it for <strong>8, 7 and 7 minutes</strong>. Start at minutes 0, 23 and 45. The last run ends at minute 52. The sprinkler stays off for 30 of those minutes.</p>
+        <p>To work it out by hand, divide the total by the longest run and round the number of runs up. Spread the watering minutes evenly across those runs, then add a break between each pair.</p>
+      </aside>
+    </div>
+    <section id="results" aria-labelledby="results-title" hidden>
+      <h2 id="results-title" tabindex="-1">Your zone schedule</h2>
+      <p id="summary"></p>
+      <table>
+        <caption>Start and stop times are minutes from the first start.</caption>
+        <thead><tr><th scope="col">Run</th><th scope="col">Start at</th><th scope="col">Stop at</th><th scope="col">Water for</th></tr></thead>
+        <tbody id="runs"></tbody>
+      </table>
+      <button type="button" id="print">Print schedule</button>
+    </section>
+    <footer>
+      <p>Watch the first cycle. If water starts to collect again, stop and give it more time to soak. If the soil is already wet between watering days, use Waves’ <a href="https://www.wavespestcontrol.com/lawn-care/overwatering-lawn-vs-underwatering/">guide to telling an overwatered lawn from an underwatered one</a> before adding water.</p>
+      <p>To measure how much water reaches the grass, use the <a href="../">sprinkler catch-can calculator</a>. For more on breaking up watering times, see <a href="https://www.epa.gov/watersense/watering-tips">EPA WaterSense watering tips</a>.</p>
+    </footer>
+  </main>
+  <script>
+    const form = document.getElementById('planner');
+    const soakInput = document.getElementById('pause');
+    const results = document.getElementById('results');
+    form.hidden = false;
+    form.addEventListener('input', () => {
+      soakInput.setCustomValidity('');
+      results.hidden = true;
+    });
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const total = document.getElementById('total').valueAsNumber;
+      const longest = document.getElementById('limit').valueAsNumber;
+      const soak = soakInput.valueAsNumber;
+      const count = Math.ceil(total / longest);
+      if (count > 1 && soak === 0) {
+        soakInput.setCustomValidity('Enter at least one minute between these runs.');
+        soakInput.reportValidity();
+        return;
+      }
+      const base = Math.floor(total / count);
+      const extra = total % count;
+      const rows = document.createDocumentFragment();
+      let start = 0;
+      for (let index = 0; index < count; index += 1) {
+        const duration = base + (index < extra ? 1 : 0);
+        const end = start + duration;
+        const row = document.createElement('tr');
+        const label = document.createElement('th');
+        label.scope = 'row';
+        label.textContent = String(index + 1);
+        row.append(label);
+        for (const value of [start, end, duration]) {
+          const cell = document.createElement('td');
+          cell.textContent = value + ' min';
+          row.append(cell);
+        }
+        rows.append(row);
+        start = end + soak;
+      }
+      const rest = (count - 1) * soak;
+      document.getElementById('runs').replaceChildren(rows);
+      document.getElementById('summary').textContent = count === 1
+        ? 'One run of ' + total + ' min. The zone can finish in one cycle.'
+        : count + ' runs give ' + total + ' min of watering and ' + rest + ' min of soaking. Allow ' + (total + rest) + ' min from start to finish.';
+      results.hidden = false;
+      document.getElementById('results-title').focus();
+    });
+    document.getElementById('print').addEventListener('click', () => window.print());
+  </script>
+</body>
+</html>
