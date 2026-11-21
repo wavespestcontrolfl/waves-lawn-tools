@@ -1,0 +1,7 @@
+site_name: Waves Lawn Tools
+site_url: !ENV READTHEDOCS_CANONICAL_URL
+repo_url: https://github.com/wavespestcontrolfl/waves-lawn-tools
+theme: readthedocs
+nav:
+  - Sprinkler run time: index.md
+  - Public API: public-api.md
